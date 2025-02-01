@@ -1,0 +1,276 @@
+<!doctype html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cuerviar Blog</title>
+</head>
+
+<body>
+  <header>
+    <nav>
+      <ul>
+        <li><a href="#section-archlinux">Arch Linux</a></li>
+        <li><a href="#section-windows10">Windows 10</a></li>
+      </ul>
+    </nav>
+  </header>
+  <h1>Cuerviar Blog</h1>
+  <section id="section-archlinux">
+    <h2>Arch Linux</h2>
+    <h3>Descargar</h3>
+    <a href="https://archlinux.org/download/" target="_blank">Pagina official de descarga de arch linux</a>
+    <p>Dirigirse la parte mas baja, en la lista de mirrors por pais. Seleccionar el país más cercano a ti.</p>
+    <p>Descargar el file: <b>archlinux-x86_64.iso</b></p>
+    <h3>Crear USB BOOTABLE</h3>
+    <p>En Windows, utilizar <a href="https://rufus.ie/en/" target="_blank">Rufus</a></p>
+    <h4>Arch</h4>
+    <p>Listar los discos y sus particiones</p>
+    <hr />
+    <p>lsblk</p>
+    <hr />
+    <p>Grabar el file iso en disco</p>
+    <hr />
+    <p>sudo dd if=~/Downloads/archlinux-x86_64.iso of=/dev/sdb bs=4M status=progress</p>
+    <hr />
+    <p>Donde:</p>
+    <ul>
+      <li>bs es tamaño de bloques que se utilizara al momento de lectura y escritura, depende la velocidad que soporta
+        el disco.</li>
+      <li>En usb 2.0 se trabaja de 1MB a 4MB</li>
+      <li>En usb 3.0 se trabaja de 4MB a 16MB</li>
+    </ul>
+    <h3>Instalacion (Clear Install)</h3>
+    <a href="https://wiki.archlinux.org/title/Installation_guide" target="_blank">Guia de instalacion oficial</a>
+
+    <h4>Internet</h4>
+    <p>
+      # listar todas las interfaces de conexión ethernet y su estado
+      ip link
+      # enviar paquetes de prueba a google
+      # con CTRL+C se detiene el envío de paquetes y se ven los resultados
+      ping www.google.com
+    </p>
+    <p>
+      usar “iwctl” para autenticarse con wifi.
+    </p>
+    <h4>Particionar</h4>
+    <a href="https://wiki.archlinux.org/title/EFI_system_partition" target="_blank">Guia de particion EFI official</a>
+    <p>
+      # listar unidades de almacenamiento y sus particiones
+      <br />
+      lsblk
+      <br />
+      # particionar el la unidad de almacenamiento con el programa fdisk
+      <br />
+      fdisk /dev/XXX
+      <br />
+      g # crear una nueva tabla de partition GPT
+      <br />
+      n # crear una nueva partition
+      <br />
+      Partition number (X-Y, default X):
+      <br />
+      First sector (A-B, default A):
+      <br />
+      Last sector, +/-sectors or +/-size{K,M,G,T,P} (A-B, default C):+1G
+      <br />
+      n # crear una nueva partition
+      <br />
+      Partition number (X-Y, default X):
+      <br />
+      First sector (A-B, default A):
+      <br />
+      Last sector, +/-sectors or +/-size{K,M,G,T,P} (A-B, default C):+4G
+      <br />
+      n # crear una nueva partition
+      <br />
+      Partition number (X-Y, default X):
+      <br />
+      First sector (A-B, default A):
+      <br />
+      Last sector, +/-sectors or +/-size{K,M,G,T,P} (A-B, default C):
+      <br />
+      t # cambiar type partition
+      <br />
+      Partition number (1-3, default 3): 1
+      <br />
+      1 # EFI System
+      <br />
+      t # cambiar type partition
+      <br />
+      Partition number (1-3, default 3): 2
+      <br />
+      19 # linux swap
+      <br />
+      w # escribir cambios en la tabla de partición
+      <br />
+    </p>
+    <h4>Formatear</h4>
+    # listar unidades de almacenamiento y sus particiones
+    <br />
+    lsblk
+    <br />
+    # formatear la partición XXX1 a formato FAT32 que un formato para
+    <br />
+    mkfs.fat -F 32 /dev/XXX1
+    <br />
+    # formatear la partición XXX2 a formato swap
+    # que es un formato de memoria virtual
+    <br />
+    mkswap /dev/XXX2
+    <br />
+    # formatear la partición XXX2 a formato ext4
+    # que es un formato de almacenamiento
+    <br />
+    mkfs.ext4 /dev/XXX3
+    <h4>Montar</h4>
+    # montar los archivos de /dev/XXX3 en el directorio /mnt
+    <br />
+    mount /dev/XXX3 /mnt
+    <br />
+    # montar los archivos de /dev/XXX1
+    # en el directorio /mnt/boot/efi, creando el directorio si no existe
+    <br />
+    mount --mkdir /dev/XXX1 /mnt/boot/efi
+    <br />
+    # activar la memoria virtual para que el sistema la use
+    # ubicada en /dev/XXX2
+    <br />
+    swapon /dev/XXX2
+    <h4>Instalacion</h4>
+    # pacstrap es una herramienta de arch
+    # utilizada para instalar paquetes un sistema de archivos montado
+    # -K indica que no copie los archivos clave
+    <br />
+    pacstrap -K /mnt base linux linux-firmware
+    <h4>Configuracion</h4>
+    <b>Fstab</b>
+    # generar un archivo fstab
+    # de todas las particiones montadas en /mnt
+    # en el archivo /mnt/etc/fstab
+    # así el sistema operativo puede montar automáticamente las particiones # al iniciar
+    <br />
+    genfstab -U /mnt >> /mnt/etc/fstab
+    <br />
+    <b>arch-chroot</b>
+    <br />
+    # herramienta de arch
+    # cambiar de root a la del sistema de archivo /mnt
+    # mnt es el nuevo / , las variables del sistema también cambian
+    <br />
+    arch-chroot /mnt
+    <br />
+    <b>time</b>
+    <br />
+    # establecer la zona horaria en systemd
+    <br />
+    timedatectl set-timezone America/Lima
+    <br />
+    # crear un enlace
+    # -s, el enlace es simbólico
+    # -f, forzar o reemplazar
+    # /usr/share/zoneinfo/America/Lima es contiene la información
+    # de la zona horaria
+    # /etc/localtime es el archivo para determinar la zona de horaria actual
+    # que apunta de /etc/localtime a /usr/share/zoneinfo/America/Lima
+    # para establecer la zona horaria local
+    <br />
+    ln -sf /usr/share/zoneinfo/America/Lima /etc/localtime
+    <br />
+    # utiliza el reloj del hardware y lo estable en el sistema operativo
+    <br />
+    hwclock --systohc
+    <br />
+    <b>Localization</b>
+    <br />
+    # instalar el editor de texto nano
+    <br />
+    pacman -S nano
+    <br />
+    nano /etc/locale.gen # descomentar en_US.UTF-8 UTF-8
+    <br />
+    # habilitar las localization para el sistema
+    <br />
+    locale-gen
+    <br />
+    #
+    <br />
+    nano /etc/locale.conf
+    <br />
+    # LANG=en_US.UTF-8
+    <br />
+    nano /etc/vconsole.conf
+    <br />
+    #KEYMAP=us
+    <br />
+    #FONT=lat9w-16
+    <br />
+    <b>Network</b>
+    <br />
+    # definir el nombre del host o nombre único en la red local
+    <br />
+    nano /etc/hostname # arch
+    <br />
+    echo arch > /etc/hostname
+    <br />
+    <a href="https://wiki.archlinux.org/title/Network_configuration" target="_blank">Configuracion de red</a>
+    <br />
+    # instala el programa "networkmanager" para poder conectarse a internet
+    <br />
+    pacman -S networkmanager
+    <br />
+    <b>Initramfs</b>
+    <br />
+    # generar o regenerar las imágenes iniciales del sistema de archivos
+    <br />
+    # initramfs
+    <br />
+    mkinitcpio -P
+    <br />
+    <br />
+    <b>Root password</b>
+    <br />
+    # Cambiar el password del usuario actual
+    <br />
+    passwd
+    <br />
+    <b>Bootloader</b>
+    <br />
+    <a href="https://wiki.archlinux.org/title/Arch_boot_process#Boot_loader" target="_blank">Bootloader</a>
+    <a href="https://wiki.archlinux.org/title/GRUB" target="_blank">GRUB</a>
+    <br />
+    # efibootmgr se utiliza para gestionar las entradas de arranque del sistema
+    <br />
+    # operativo
+    <br />
+    # grub es un gestor de arranque
+    <br />
+    pacman -S grub efibootmgr
+    <br />
+    grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=GRUB
+    <br />
+    grub-mkconfig -o /boot/grub/grub.cfg
+    <br />
+    <h4>Reboot</h4>
+    <br />
+    # exit se utiliza salir de un programa, en este caso de arch-chroot
+    <br />
+    exit
+    <br />
+    # desmonta todos los sistemas de archivos montados en /mnt
+    <br />
+    umount -R /mnt
+    <br />
+    # reiniciar el sistema operativo, en este caso del iso live
+    <br />
+    reboot
+    <br />
+  </section>
+  <section id="section-windows10"></section>
+  <script type="module" src="/src/main.js"></script>
+</body>
+
+</html>

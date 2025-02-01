@@ -1,0 +1,22 @@
+:root {
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  background-color: beige;
+}
+
+#section-archlinux {
+  width: 100%;
+  background-color: white;
+}
+
+#section-windows10 {
+  height: 1600px;
+  width: 100%;
+  background-color: black;
+}
