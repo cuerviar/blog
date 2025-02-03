@@ -268,6 +268,109 @@
     <br />
     reboot
     <br />
+    <h3>Instalacion (Dual Boot)</h3>
+    <h4>Particionar</h4>
+    <a href="https://wiki.archlinux.org/title/EFI_system_partition" target="_blank">wiki EFI system partition</a>
+    <br />
+    # listar unidades de almacenamiento y sus particiones
+    <br />
+    lsblk
+    <br />
+    # particionar el la unidad de almacenamiento con el programa fdisk
+    <br />
+    fdisk /dev/XXX
+    <br />
+    n # crear una nueva partition
+    <br />
+    Partition number (X-Y, default X):
+    <br />
+    First sector (A-B, default A):
+    <br />
+    Last sector, +/-sectors or +/-size{K,M,G,T,P} (A-B, default C):
+    <br />
+    w # escribir cambios en la tabla de partición
+    <br />
+    <h4>Formatear</h4>
+    # listar unidades de almacenamiento y sus particiones
+    <br />
+    lsblk
+    <br />
+    # formatear la partición XXX5 a formato ext4
+    <br />
+    # que es un formato de almacenamiento
+    <br />
+    mkfs.ext4 /dev/XXX5
+    <h4>Montar</h4>
+    # montar los archivos de /dev/XXX5 en el directorio /mnt
+    <br />
+    mount /dev/XXX5 /mnt
+    <br />
+    # montar los archivos de /dev/XXX1
+    <br />
+    # en el directorio /mnt/boot/efi, creando el directorio si no existe
+    <br />
+    mount --mkdir /dev/XXX1 /mnt/boot/efi
+    <h4>Instalacion</h4>
+    # pacstrap es una herramienta de arch
+    <br />
+    # utilizada para instalar paquetes un sistema de archivos montado
+    <br />
+    # -K indica que no copie los archivos clave
+    <br />
+    pacstrap -K /mnt base linux linux-firmware
+    <br />
+    <h4>Configuracion</h4>
+    <br />
+    <b>Fstab</b>
+    <br />
+    # generar un archivo fstab
+    <br />
+    # de todas las particiones montadas en /mnt
+    <br />
+    # en el archivo /mnt/etc/fstab
+    <br />
+    # así el sistema operativo puede montar automáticamente las particiones # al iniciar
+    <br />
+    genfstab -U /mnt >> /mnt/etc/fstab
+    <br />
+    <b>arch-chroot</b>
+    <br />
+    # herramienta de arch
+    <br />
+    # cambiar de root a la del sistema de archivo /mnt
+    <br />
+    # mnt es el nuevo / , las variables del sistema también cambian
+    <br />
+    arch-chroot /mnt
+    <br />
+    <b>Time</b>
+    <br />
+    # establecer la zona horaria en systemd
+    <br />
+    timedatectl set-timezone America/Lima
+    <br />
+    # crear un enlace
+    <br />
+    # -s, el enlace es simbólico
+    <br />
+    # -f, forzar o reemplazar
+    <br />
+    # /usr/share/zoneinfo/America/Lima es contiene la información
+    <br />
+    # de la zona horaria
+    <br />
+    # /etc/localtime es el archivo para determinar la zona de horaria actual
+    <br />
+    # que apunta de /etc/localtime a /usr/share/zoneinfo/America/Lima
+    <br />
+    # para establecer la zona horaria local
+    <br />
+    ln -sf /usr/share/zoneinfo/America/Lima /etc/localtime
+    <br />
+    # utiliza el reloj del hardware y lo estable en el sistema operativo
+    <br />
+    hwclock --systohc
+    <br />
   </section>
   <section id="section-windows10"></section>
   <script type="module" src="/src/main.js"></script>
